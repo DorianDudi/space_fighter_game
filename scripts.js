@@ -5,7 +5,7 @@ ctx.fillStyle = 'silver';
 ctx.font = "bold 60px sans-serif";
 ctx.fillText('- SPACE FIGHTER -', 25, 350);
 ctx.globalAlpha = 1;
-let yPositionInPixelsBackground = 1,  score = 0, high_score = 0, gameOver = 0;
+let yPositionInPixelsBackground = 1,  score = 0, gameOver = 0, levelThreshold = 25, obstacleGenerationInterval = 800, obstacleMotionInterval = 55;
 let shipFrontX = 300, shipFrontY = 655, shipLeftX = shipFrontX - 10, shipLeftY = shipFrontY + 35, shipRightX = shipFrontX + 10, shipRightY = shipFrontY + 35;
 let obstacles = [[],[]];
 setInterval(moveBackgroundDown, 150);
@@ -25,10 +25,32 @@ function hasCollision() {
 	return collisionPresent;
 }
 
+function checkLevelIncrease() {
+	if (score == levelThreshold) {
+		levelThreshold += 25;
+		clearInterval(obstaclesID);
+		if (obstacleGenerationInterval > 100) {
+			obstacleGenerationInterval -= 50;
+		}
+		obstaclesID = setInterval(generateObstacles, obstacleGenerationInterval);
+		if (obstacleMotionInterval > 15) {
+			obstacleMotionInterval -= 5;
+		} else if (obstacleMotionInterval > 7) {
+			obstacleMotionInterval -= 1;
+		}
+		clearInterval(moveObstaclesID);
+		moveObstaclesID = setInterval(moveObstacles, obstacleMotionInterval);
+		console.log("level threshold: " + levelThreshold);
+		console.log("generation interval(ms): " + obstacleGenerationInterval);
+		console.log("motion interval(ms): " +obstacleMotionInterval);
+		console.log("-------------------------------------------------------");
+	}
+}
+
 function runGame() {
 	scoreID = setInterval(incrementScore, 1000);
-	obstaclesID = setInterval(generateObstacles, 550);
-	moveObstaclesID = setInterval(moveObstacles, 25);
+	obstaclesID = setInterval(generateObstacles, obstacleGenerationInterval);
+	moveObstaclesID = setInterval(moveObstacles, obstacleMotionInterval);
 	drawShip();
 	document.addEventListener('keydown', moveShip);
 	drawObstacles();
@@ -70,7 +92,7 @@ function generateObstacles() {
 
 function deleteObstacles() {
 	for (let i = 0; i < obstacles[1].length; ++i) {
-		if (obstacles[1][i] > 700) {
+		if (obstacles[1][i] > 715) {
 			obstacles[0].splice(i, 1);
 			obstacles[1].splice(i, 1);
 		}
@@ -106,6 +128,7 @@ function drawObstacles() {
 function incrementScore() {
 	++score;
 	document.getElementById('score').innerHTML = score.toString().padStart(4, '0');
+	checkLevelIncrease();
 }
 
 function moveShip(event) {
@@ -144,10 +167,10 @@ function moveLeft() {
 }
 
 function drawEndGame() {
-	document.getElementById("ship_explosion_full").style.display = "block";
 	document.getElementById("ship_explosion_full").style.position = "absolute";
 	document.getElementById("ship_explosion_full").style.top = document.getElementById("game").offsetTop + shipFrontY - 50 + "px";
 	document.getElementById("ship_explosion_full").style.left = document.getElementById("game").offsetLeft + shipFrontX - 50 + "px";
+	document.getElementById("ship_explosion_full").style.display = "block";
 	setTimeout(() => {
 		document.getElementById("ship_explosion_full").style.display = "none";
 	}, 900);
@@ -184,7 +207,9 @@ function resetGame() {
 		shipLeftY = shipFrontY + 35;
 		shipRightX = shipFrontX + 10;
 		shipRightY = shipFrontY + 35;
-		
+		levelThreshold = 50;
+		obstacleGenerationInterval = 800;
+		obstacleMotionInterval = 55;
 		document.getElementById("restart_button").style.display = "none";
 		runGame();
 }
