@@ -1,4 +1,3 @@
-//AIRPLANE FIGHTER
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 ctx.globalAlpha = 0.4;
@@ -126,7 +125,6 @@ function redrawGame() {
 	}
 	drawObstacles();
 }
-// x: 10 - 590
 function moveRight() {
 	if (shipFrontX <= 585) {
 		shipFrontX += 5;
@@ -170,7 +168,6 @@ function drawEndGameMessage() {
 	ctx.font = "15px sans-serif";
 }
 
-
 function resetGame() {
 		clearInterval(scoreID);
 		clearInterval(obstaclesID);
@@ -191,25 +188,6 @@ function resetGame() {
 		document.getElementById("restart_button").style.display = "none";
 		runGame();
 }
-
-/*
-function drawEndGame() {
-	let frameNumber = 0;
-	let animationID = setInterval(() => {
-		ctx.clearRect(0, 0, 600, 700);
-		drawObstacles();
-		let imageName = "shipExplosion_frame_" + frameNumber;
-		console.log(imageName);  
-		//ctx.drawImage(imageName, shipFrontX, shipFrontY, 35, 35);
-		++frameNumber;
-		if(frameNumber == 9) {
-			clearInterval(animationID);
-		}
-	}, 300);
-}
-*/
-
-//runGame();
 
 
 
