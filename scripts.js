@@ -1,152 +1,87 @@
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
-drawHomeScreen();
+let canvasWidth = 600, canvasHeight = 700;
 let yPositionInPixelsBackground = 1,  score = 0, high_score = 0, gameOver = 0, gameMode = 0, levelThreshold = 25, obstacleGenerationInterval = 800, obstacleMotionInterval = 55;
-let shipFrontX = 300, shipFrontY = 655, shipLeftX = shipFrontX - 10, shipLeftY = shipFrontY + 35, shipRightX = shipFrontX + 10, shipRightY = shipFrontY + 35;
+let shipLengthInPixels = 35, shipWidthInPixels = 20;
+let shipFrontX = 300, shipFrontY = 655, shipLeftX = shipFrontX - shipWidthInPixels / 2, shipLeftY = shipFrontY + shipLengthInPixels, shipRightX = shipFrontX + shipWidthInPixels / 2, shipRightY = shipFrontY + shipLengthInPixels;
 let obstacles = [[],[]];
 let projectiles = [[],[]];
-setInterval(moveBackgroundDown, 150);
+let obstacleRadius = 10;
+let maxProjectiles = 10;
 let scoreID;
 let obstaclesID;
 let moveObstaclesID;
 let moveProjectilesID;
 let obstacleExplosionID = 1;
 let game_obstacle = document.getElementById("game_obstacle");
-let menuLocationX_1 = document.getElementById("game").offsetLeft + 150;
-let menuLocationX_2 = document.getElementById("game").offsetLeft + 251;
-let menuLocationX_3 = document.getElementById("game").offsetLeft + 352;
-let menuLocationY = document.getElementById("game").offsetTop + 420;
+let windowCanvasOffsetLeft = document.getElementById("game").offsetLeft;
+let windowCanvasOffsetTop = document.getElementById("game").offsetTop;
+let innerCanvasOffset_1 = 150;
+let innerCanvasOffset_2 = 251;
+let innerCanvasOffset_3 = 352;
+let innerCanvasOffsetTop = 420;
+let menuLocationX_1 = windowCanvasOffsetLeft + innerCanvasOffset_1;
+let menuLocationX_2 = windowCanvasOffsetLeft + innerCanvasOffset_2;
+let menuLocationX_3 = windowCanvasOffsetLeft + innerCanvasOffset_3;
+let menuLocationY = windowCanvasOffsetTop + innerCanvasOffsetTop;
+let menuBoxLength = 97, menuBoxWidth = 45;
+setInterval(moveBackgroundDown, 150);
+drawHomeScreen();
 
-function drawHomeScreen() {
-	ctx.globalAlpha = 0.5;
-	ctx.fillStyle = 'silver';
-	ctx.font = "bold 60px sans-serif";
-	ctx.fillText('- SPACE FIGHTER -', 25, 350);
-	ctx.globalAlpha = 1;
-	ctx.fillRect(150, 400, 300, 15);
-	ctx.fillStyle = 'black';
-	ctx.font = "15px sans-serif";
-	ctx.fillText('CHOOSE GAME MODE', 220, 413);
-	ctx.globalAlpha = 0.4;
-	ctx.fillStyle = 'silver';
-	ctx.fillRect(150, 420, 98, 45);
-	ctx.fillRect(251, 420, 98, 45);
-	ctx.fillRect(352, 420, 98, 45);
-	ctx.globalAlpha = 1;
-	ctx.fillStyle = 'black';
-	ctx.font = "bold 50px sans-serif";
-	ctx.fillText('1', 190, 460);
-	ctx.fillText('2', 291, 460);
-	ctx.fillText('3', 392, 460);
-	document.addEventListener("mousemove", highlightMainMenu);
-	
-	function highlightMainMenu(mouse_event) {
-		ctx.clearRect(150, 420, 300, 300);
-		if (mouse_event.clientX >= menuLocationX_1 && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX_1 + 97 && mouse_event.clientY <= menuLocationY + 45) {
-			ctx.globalAlpha = 1;
-			ctx.fillStyle = 'silver';
-			ctx.fillRect(150, 420, 98, 45);
-			ctx.font = "bold 15px sans-serif";
-			ctx.fillText('"ENDURE"', 160, 500);
-			ctx.font = "14px sans-serif";
-			ctx.fillText("Your score is the game's elapsed time", 180, 530);
-			ctx.globalAlpha = 0.4;
-			ctx.fillRect(251, 420, 98, 45);
-			ctx.fillRect(352, 420, 98, 45);
-		} else if (mouse_event.clientX >= menuLocationX_2 && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX_2 + 97 && mouse_event.clientY <= menuLocationY + 45) {
-			ctx.globalAlpha = 1;
-			ctx.fillStyle = 'silver';
-			ctx.fillRect(251, 420, 98, 45);
-			ctx.font = "bold 15px sans-serif";
-			ctx.fillText('"DODGE"', 265, 500);
-			ctx.font = "14px sans-serif";
-			ctx.fillText("Your score is the number of dodged obstacles", 160, 530);
-			ctx.globalAlpha = 0.4;
-			ctx.fillRect(150, 420, 98, 45);
-			ctx.fillRect(352, 420, 98, 45);
-			menuSelection = 2;
-		} else if (mouse_event.clientX >= menuLocationX_3 && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX_3 + 97 && mouse_event.clientY <= menuLocationY + 45) {
-			ctx.globalAlpha = 1;
-			ctx.fillStyle = 'silver';
-			ctx.fillRect(352, 420, 98, 45);
-			ctx.font = "bold 15px sans-serif";
-			ctx.fillText('"DESTROY"', 360, 500);
-			ctx.font = "14px sans-serif";
-			ctx.fillText("Your score is the number of destroyed obstacles", 150, 530);
-			ctx.globalAlpha = 0.4;
-			ctx.fillRect(150, 420, 98, 45);
-			ctx.fillRect(251, 420, 98, 45);
-			menuSelection = 3;
-		} else {
-			ctx.globalAlpha = 0.4;
-			ctx.fillStyle = 'silver';
-			ctx.fillRect(150, 420, 98, 45);
-			ctx.fillRect(251, 420, 98, 45);
-			ctx.fillRect(352, 420, 98, 45);
-		}
-		ctx.globalAlpha = 1;
-		ctx.fillStyle = 'black';
-		ctx.font = "bold 50px sans-serif";
-		ctx.fillText('1', 190, 460);
-		ctx.fillText('2', 291, 460);
-		ctx.fillText('3', 392, 460);
+function highlightMainMenu(mouse_event) {
+	ctx.clearRect(150, 420, 300, 300); // clears only the game mode menu area
+	if (mouse_event.clientX >= menuLocationX_1 && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX_1 + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
+		drawMenuGameMode_1();
+	} else if (mouse_event.clientX >= menuLocationX_2 && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX_2 + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
+		drawMenuGameMode_2();
+	} else if (mouse_event.clientX >= menuLocationX_3 && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX_3 + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
+		drawMenuGameMode_3();
+	} else {
+		drawMenuInactive();
 	}
-	document.addEventListener("click", launchGame);
-			
-	function launchGame(click_event) {
-		//console.log("click detected");
-		//console.log(click_event.clientX);
-		//console.log(click_event.clientY);
-		if ((click_event.clientX >= menuLocationX_1 && click_event.clientX <= (menuLocationX_1 + 97)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + 45))) {
-			gameMode = 1;
-		} else if ((click_event.clientX >= menuLocationX_2 && click_event.clientX <= (menuLocationX_2 + 97)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + 45))) {
-			gameMode = 2;
-		} else if ((click_event.clientX >= menuLocationX_3 && click_event.clientX <= (menuLocationX_3 + 97)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + 45))) {
-			gameMode = 3;
-			document.addEventListener("keydown", fireProjectile);
-			moveProjectilesID = setInterval(moveProjectiles, 10);
-		}
-		if (gameMode != 0) {
-			document.removeEventListener("mousemove", highlightMainMenu);
-			document.removeEventListener("click", launchGame);
-			runGame();
-		}
+	drawMenuDigits();
+}
+
+function launchGame(click_event) {
+	if ((click_event.clientX >= menuLocationX_1 && click_event.clientX <= (menuLocationX_1 + menuBoxLength)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + menuBoxWidth))) {
+		gameMode = 1;
+	} else if ((click_event.clientX >= menuLocationX_2 && click_event.clientX <= (menuLocationX_2 + menuBoxLength)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + menuBoxWidth))) {
+		gameMode = 2;
+	} else if ((click_event.clientX >= menuLocationX_3 && click_event.clientX <= (menuLocationX_3 + menuBoxLength)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + menuBoxWidth))) {
+		gameMode = 3;
+		document.addEventListener("keydown", fireProjectile);
+		moveProjectilesID = setInterval(moveProjectiles, obstacleRadius);
+	}
+	if (gameMode != 0) {
+		document.removeEventListener("mousemove", highlightMainMenu);
+		document.removeEventListener("click", launchGame);
+		runGame();
 	}
 }
 
 function fireProjectile(fire_event) {
+
 	if (fire_event.key === ' ') {
-		if (projectiles[0].length < 10) {
+		if (projectiles[0].length < maxProjectiles) {
 			projectiles[0].push(shipFrontX);
 			projectiles[1].push(shipFrontY);
 		}
 	}
 }
 
-function targetIsHit() {
+function obstacleDestroyed() {
 	let targetHit = 0;
 	for (let i = 0; i < obstacles[0].length; ++i) {
 		for (let j = 0; j < projectiles[0].length; ++j) {
 			let x1 = obstacles[0][i];
 			let y1 = obstacles[1][i];
-			if (Math.round(Math.sqrt(Math.pow(Math.abs(obstacles[0][i] - projectiles[0][j]), 2) + Math.pow(Math.abs(obstacles[1][i] - projectiles[1][j]), 2))) <= 10) {
+			// linear distance between obstacle center and projectile center should be less than the obstacle's radius for a hit to happen:
+			if (Math.round(Math.sqrt(Math.pow(Math.abs(obstacles[0][i] - projectiles[0][j]), 2) + Math.pow(Math.abs(obstacles[1][i] - projectiles[1][j]), 2))) <= obstacleRadius) {
 				targetHit = 1;
 				let currentExplosionID = obstacleExplosionID.toString();
 				++obstacleExplosionID;
 				let imageToAdd = document.createElement("img");
-				document.getElementById("main_container").prepend(imageToAdd);
-				document.getElementById("main_container").firstElementChild.setAttribute("id", currentExplosionID);
-				document.getElementById("main_container").firstElementChild.setAttribute("src", "obstacle_explosion.gif" + '?id=' + Math.floor(Math.random() * 100));
-				document.getElementById("main_container").firstElementChild.setAttribute("width", 70);
-				document.getElementById("main_container").firstElementChild.setAttribute("height", 70);
-				document.getElementById("main_container").firstElementChild.setAttribute("style", "display:block;");
-				//document.getElementById("main_container").prepend(document.createElement('<img id="' + currentExplosionID + '" src="obstacle_explosion.gif" width="50" height="50" style="display:block;"/>'));
-				document.getElementById(currentExplosionID).style.position = "absolute";
-				document.getElementById(currentExplosionID).style.top = document.getElementById("game").offsetTop + y1 - 30 + "px";
-				document.getElementById(currentExplosionID).style.left = document.getElementById("game").offsetLeft + x1 - 30 + "px";
-				setTimeout(() => {
-					document.getElementById(currentExplosionID).remove();
-				}, 700);
+				displayObstacleExplosion(imageToAdd, currentExplosionID, x1, y1);
 				obstacles[0].splice(i, 1);
 				obstacles[1].splice(i, 1);
 				projectiles[0].splice(j, 1);
@@ -158,41 +93,46 @@ function targetIsHit() {
 	return targetHit;
 }
 
+function displayObstacleExplosion (imageParam, explosionID, coordinateX, coordinateY) {
+	let imageOffsetFromCenter = 30;
+	document.getElementById("main_container").prepend(imageParam);
+	document.getElementById("main_container").firstElementChild.setAttribute("id", explosionID);
+	document.getElementById("main_container").firstElementChild.setAttribute("src", "obstacle_explosion.gif" + '?id=' + Math.floor(Math.random() * 100));
+	document.getElementById("main_container").firstElementChild.setAttribute("width", 70);
+	document.getElementById("main_container").firstElementChild.setAttribute("height", 70);
+	document.getElementById("main_container").firstElementChild.setAttribute("style", "display:block;");
+	document.getElementById(explosionID).style.position = "absolute";
+	document.getElementById(explosionID).style.top = document.getElementById("game").offsetTop + coordinateY - imageOffsetFromCenter + "px";
+	document.getElementById(explosionID).style.left = document.getElementById("game").offsetLeft + coordinateX - imageOffsetFromCenter + "px";
+	setTimeout(() => {
+		document.getElementById(explosionID).remove();
+	}, 700);
+}
+
 function moveProjectiles() {
 	for (let i = 0; i < projectiles[1].length; ++i) {
 		projectiles[1][i] -= 2;
 	}
 	deleteProjectiles();
-	if(targetIsHit()){
+	if(obstacleDestroyed()){
 		incrementScore();
 	}
 	redrawGame();
 }
 
-function drawProjectiles() {
-	for (let i = 0; i < projectiles[0].length; ++i) {
-		let x = projectiles[0][i], y = projectiles[1][i];
-		ctx.fillStyle = 'orange';
-		ctx.beginPath();
-		ctx.arc(x, y, 3, 0, 2 * Math.PI);
-		ctx.closePath();
-		ctx.fill();
-	}
-}
-
 function deleteProjectiles() {
 	for (let i = 0; i < projectiles[1].length; ++i) {
-		if (projectiles[1][i] < 10) {
+		if (projectiles[1][i] < maxProjectiles) {
 			projectiles[0].splice(i, 1);
 			projectiles[1].splice(i, 1);
 		}
 	}
 }
 
-function hasCollision() {
-	let collisionPresent = 0;
+function shipCollision() {
+	let collisionPresent = 0, bottomHalfLimit = 22;
 	for (let i = 0; i < obstacles[0].length; ++i) {
-		if ((((obstacles[0][i] - 10 < shipRightX && obstacles[0][i] - 10 > shipLeftX) || (obstacles[0][i] + 10 > shipLeftX && obstacles[0][i] + 10 < shipRightX)) && (obstacles[1][i] >= shipFrontY + 22 && obstacles[1][i] < shipFrontY + 38)) || (obstacles[1][i] + 9 > shipFrontY && obstacles[0][i] - 10 <= shipFrontX && obstacles[0][i] + 10 >= shipFrontX)) {
+		if ((((obstacles[0][i] - obstacleRadius < shipRightX && obstacles[0][i] - obstacleRadius > shipLeftX) || (obstacles[0][i] + obstacleRadius > shipLeftX && obstacles[0][i] + obstacleRadius < shipRightX)) && (obstacles[1][i] >= shipFrontY + bottomHalfLimit && obstacles[1][i] < shipFrontY + shipLengthInPixels)) || (obstacles[1][i] + (obstacleRadius - 1) > shipFrontY && obstacles[0][i] - obstacleRadius <= shipFrontX && obstacles[0][i] + obstacleRadius >= shipFrontX)) {
 			collisionPresent = 1;
 			break;
 		}
@@ -215,10 +155,6 @@ function checkLevelIncrease() {
 		}
 		clearInterval(moveObstaclesID);
 		moveObstaclesID = setInterval(moveObstacles, obstacleMotionInterval);
-		//console.log("level threshold: " + levelThreshold);
-		//console.log("generation interval(ms): " + obstacleGenerationInterval);
-		//console.log("motion interval(ms): " +obstacleMotionInterval);
-		//console.log("-------------------------------------------------------");
 	}
 }
 
@@ -231,7 +167,6 @@ function runGame() {
 	drawShip();
 	document.addEventListener('keydown', moveShip);
 	drawObstacles();
-	//document.getElementById("start_button").style.display = "none";
 }
 
 function getRandomIntInclusive(min, max) {
@@ -249,27 +184,17 @@ function moveBackgroundDown() {
 	}
 }
 
-function drawShip() {
-	ctx.fillStyle = 'white';
-	ctx.beginPath();
-    ctx.moveTo(shipFrontX - 3, shipFrontY);
-	ctx.lineTo(shipFrontX + 3, shipFrontY);
-    ctx.lineTo(shipRightX, shipRightY);
-    ctx.lineTo(shipLeftX, shipLeftY);
-	ctx.closePath;
-    ctx.fill();
-}
-
 function generateObstacles() {
-	let newX = getRandomIntInclusive(10, 600), newY = getRandomIntInclusive(-15, -8);
+	let newX = getRandomIntInclusive(10, canvasWidth), newY = getRandomIntInclusive(-15, -8);
 	obstacles[0].push(newX);
 	obstacles[1].push(newY);
 	redrawGame();
 }
 
-function deleteObstacles() {
+function deleteObstacles() { // obstacles outside canvas bottom margin get deleted
+	let obstacleLowerLimit = 715;
 	for (let i = 0; i < obstacles[1].length; ++i) {
-		if (obstacles[1][i] > 715) {
+		if (obstacles[1][i] > obstacleLowerLimit) {
 			obstacles[0].splice(i, 1);
 			obstacles[1].splice(i, 1);
 			if (gameMode == 2 && !gameOver) {
@@ -285,22 +210,10 @@ function moveObstacles() {
 	}
 	deleteObstacles();
 	redrawGame();
-	if(hasCollision() && !gameOver){
-		drawEndGame();
+	if(shipCollision() && !gameOver){
+		displayEndGameScreen();
 		gameOver = 1;
 		//resetGame();
-	}
-}
-
-function drawObstacles() {
-	for (let i = 0; i < obstacles[0].length; ++i) {
-		let x = obstacles[0][i], y = obstacles[1][i];
-		ctx.fillStyle = 'orange';
-		ctx.beginPath();
-		ctx.drawImage(game_obstacle, x - 10, y - 10, 22, 22);
-		//ctx.arc(x, y, 10, 0, 2 * Math.PI);
-		ctx.closePath();
-		ctx.fill();
 	}
 }
 
@@ -318,19 +231,9 @@ function moveShip(event) {
 	}
 }
 
-function redrawGame() {
-	ctx.clearRect(0, 0, 600, 700);
-	if (!gameOver) {
-		drawShip();		
-	} else {
-		drawEndGameMessage();
-	}
-	drawObstacles();
-	drawProjectiles();
-}
-
+let rightCanvasLimit = 585, leftCanvasLimit = 15;
 function moveRight() {
-	if (shipFrontX <= 585) {
+	if (shipFrontX <= rightCanvasLimit) {
 		shipFrontX += 5;
 		shipLeftX = shipFrontX - 10;
 		shipRightX = shipFrontX + 10;
@@ -339,7 +242,7 @@ function moveRight() {
 }
 
 function moveLeft() {
-	if (shipFrontX >= 15) {
+	if (shipFrontX >= leftCanvasLimit) {
 		shipFrontX -= 5;
 		shipLeftX = shipFrontX - 10;
 		shipRightX = shipFrontX + 10;
@@ -347,7 +250,7 @@ function moveLeft() {
 	redrawGame();
 }
 
-function drawEndGame() {
+function displayEndGameScreen() {
 	document.getElementById("ship_explosion_full").style.position = "absolute";
 	document.getElementById("ship_explosion_full").style.top = document.getElementById("game").offsetTop + shipFrontY - 50 + "px";
 	document.getElementById("ship_explosion_full").style.left = document.getElementById("game").offsetLeft + shipFrontX - 50 + "px";
@@ -362,42 +265,33 @@ function drawEndGame() {
 	}
 }
 
-function drawEndGameMessage() {
-	ctx.globalAlpha = 0.5;
-	ctx.fillStyle = 'silver';
-	ctx.font = "bold 60px sans-serif";
-	ctx.fillText('GAME OVER', 120, 250);
-	ctx.globalAlpha = 0.9;
-	ctx.font = "20px sans-serif";
-	ctx.fillText('YOUR SCORE: ' + score, 220, 300);
-	ctx.globalAlpha = 1.0;
-	ctx.font = "15px sans-serif";
+function resetGame() {
+	obstacles = [[],[]];
+	projectiles = [[],[]];
+	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+	clearInterval(scoreID);
+	clearInterval(obstaclesID);
+	clearInterval(moveObstaclesID);
+	clearInterval(moveProjectilesID);
+	gameOver = 0;
+	score = 0;
+	document.getElementById('score').innerHTML = score.toString().padStart(4, '0');
+	shipFrontX = 300;
+	shipFrontY = 655;
+	shipLeftX = shipFrontX - shipWidthInPixels / 2;
+	shipLeftY = shipFrontY + shipLengthInPixels;
+	shipRightX = shipFrontX + shipWidthInPixels / 2;
+	shipRightY = shipFrontY + shipLengthInPixels;
+	levelThreshold = 50;
+	obstacleGenerationInterval = 800;
+	obstacleMotionInterval = 55;
+	document.getElementById("restart_button").style.display = "none";
+	if (gameMode == 3) {
+		document.removeEventListener("keydown", fireProjectile);
+	}
+	gameMode = 0;
+	drawHomeScreen();
 }
 
-function resetGame() {
-		obstacles = [[],[]];
-		projectiles = [[],[]];
-		ctx.clearRect(0, 0, 600, 700);
-		clearInterval(scoreID);
-		clearInterval(obstaclesID);
-		clearInterval(moveObstaclesID);
-		clearInterval(moveProjectilesID);
-		gameOver = 0;
-		score = 0;
-		document.getElementById('score').innerHTML = score.toString().padStart(4, '0');
-		shipFrontX = 300;
-		shipFrontY = 655;
-		shipLeftX = shipFrontX - 10;
-		shipLeftY = shipFrontY + 35;
-		shipRightX = shipFrontX + 10;
-		shipRightY = shipFrontY + 35;
-		levelThreshold = 50;
-		obstacleGenerationInterval = 800;
-		obstacleMotionInterval = 55;
-		document.getElementById("restart_button").style.display = "none";
-		if (gameMode == 3) {
-			document.removeEventListener("keydown", fireProjectile);
-		}
-		gameMode = 0;
-		drawHomeScreen();
-}
+
+
