@@ -1,7 +1,7 @@
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 let canvasWidth = 600, canvasHeight = 700;
-let yPositionInPixelsBackground = 1,  score = 0, high_score = 0, gameOver = 0, gameMode = 0, levelThreshold = 25, obstacleGenerationInterval = 800, obstacleMotionInterval = 55;
+let yPositionInPixelsBackground = 1,  score = 0, gameOver = 0, gameMode = 0, levelThreshold = 25, obstacleGenerationInterval = 800, obstacleMotionInterval = 55;
 let shipLengthInPixels = 35, shipWidthInPixels = 20;
 let shipFrontX = 300, shipFrontY = 655, shipLeftX = shipFrontX - shipWidthInPixels / 2, shipLeftY = shipFrontY + shipLengthInPixels, shipRightX = shipFrontX + shipWidthInPixels / 2, shipRightY = shipFrontY + shipLengthInPixels;
 let obstacles = [[],[]];
@@ -16,13 +16,12 @@ let obstacleExplosionID = 1;
 let game_obstacle = document.getElementById("game_obstacle");
 let windowCanvasOffsetLeft = document.getElementById("game").offsetLeft;
 let windowCanvasOffsetTop = document.getElementById("game").offsetTop;
-let innerCanvasOffset_1 = 150;
-let innerCanvasOffset_2 = 251;
-let innerCanvasOffset_3 = 352;
+let innerCanvasOffsetLeft = [150,251,352];
+let menuLocationX = [];
+for (let i = 0; i < 3; ++i) {
+	menuLocationX[i] = windowCanvasOffsetLeft + innerCanvasOffsetLeft[i];
+}
 let innerCanvasOffsetTop = 420;
-let menuLocationX_1 = windowCanvasOffsetLeft + innerCanvasOffset_1;
-let menuLocationX_2 = windowCanvasOffsetLeft + innerCanvasOffset_2;
-let menuLocationX_3 = windowCanvasOffsetLeft + innerCanvasOffset_3;
 let menuLocationY = windowCanvasOffsetTop + innerCanvasOffsetTop;
 let menuBoxLength = 97, menuBoxWidth = 45;
 setInterval(moveBackgroundDown, 150);
@@ -30,11 +29,11 @@ drawHomeScreen();
 
 function highlightMainMenu(mouse_event) {
 	ctx.clearRect(150, 420, 300, 300); // clears only the game mode menu area
-	if (mouse_event.clientX >= menuLocationX_1 && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX_1 + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
+	if (mouse_event.clientX >= menuLocationX[0] && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX[0] + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
 		drawMenuGameMode_1();
-	} else if (mouse_event.clientX >= menuLocationX_2 && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX_2 + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
+	} else if (mouse_event.clientX >= menuLocationX[1] && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX[1] + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
 		drawMenuGameMode_2();
-	} else if (mouse_event.clientX >= menuLocationX_3 && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX_3 + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
+	} else if (mouse_event.clientX >= menuLocationX[2] && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX[2] + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
 		drawMenuGameMode_3();
 	} else {
 		drawMenuInactive();
@@ -43,11 +42,11 @@ function highlightMainMenu(mouse_event) {
 }
 
 function launchGame(click_event) {
-	if ((click_event.clientX >= menuLocationX_1 && click_event.clientX <= (menuLocationX_1 + menuBoxLength)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + menuBoxWidth))) {
+	if ((click_event.clientX >= menuLocationX[0] && click_event.clientX <= (menuLocationX[0] + menuBoxLength)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + menuBoxWidth))) {
 		gameMode = 1;
-	} else if ((click_event.clientX >= menuLocationX_2 && click_event.clientX <= (menuLocationX_2 + menuBoxLength)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + menuBoxWidth))) {
+	} else if ((click_event.clientX >= menuLocationX[1] && click_event.clientX <= (menuLocationX[1] + menuBoxLength)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + menuBoxWidth))) {
 		gameMode = 2;
-	} else if ((click_event.clientX >= menuLocationX_3 && click_event.clientX <= (menuLocationX_3 + menuBoxLength)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + menuBoxWidth))) {
+	} else if ((click_event.clientX >= menuLocationX[2] && click_event.clientX <= (menuLocationX[2] + menuBoxLength)) && (click_event.clientY >= menuLocationY && click_event.clientY <= (menuLocationY + menuBoxWidth))) {
 		gameMode = 3;
 		document.addEventListener("keydown", fireProjectile);
 		moveProjectilesID = setInterval(moveProjectiles, obstacleRadius);
@@ -60,11 +59,30 @@ function launchGame(click_event) {
 }
 
 function fireProjectile(fire_event) {
-
 	if (fire_event.key === ' ') {
 		if (projectiles[0].length < maxProjectiles) {
 			projectiles[0].push(shipFrontX);
 			projectiles[1].push(shipFrontY);
+		}
+	}
+}
+
+function moveProjectiles() {
+	for (let i = 0; i < projectiles[1].length; ++i) {
+		projectiles[1][i] -= 2;
+	}
+	deleteProjectiles();
+	if(obstacleDestroyed()){
+		incrementScore();
+	}
+	redrawGame();
+}
+
+function deleteProjectiles() {
+	for (let i = 0; i < projectiles[1].length; ++i) {
+		if (projectiles[1][i] < 0) {
+			projectiles[0].splice(i, 1);
+			projectiles[1].splice(i, 1);
 		}
 	}
 }
@@ -109,25 +127,6 @@ function displayObstacleExplosion (imageParam, explosionID, coordinateX, coordin
 	}, 700);
 }
 
-function moveProjectiles() {
-	for (let i = 0; i < projectiles[1].length; ++i) {
-		projectiles[1][i] -= 2;
-	}
-	deleteProjectiles();
-	if(obstacleDestroyed()){
-		incrementScore();
-	}
-	redrawGame();
-}
-
-function deleteProjectiles() {
-	for (let i = 0; i < projectiles[1].length; ++i) {
-		if (projectiles[1][i] < maxProjectiles) {
-			projectiles[0].splice(i, 1);
-			projectiles[1].splice(i, 1);
-		}
-	}
-}
 
 function shipCollision() {
 	let collisionPresent = 0, bottomHalfLimit = 22;
@@ -292,6 +291,3 @@ function resetGame() {
 	gameMode = 0;
 	drawHomeScreen();
 }
-
-
-
