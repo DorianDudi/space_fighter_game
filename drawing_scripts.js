@@ -46,73 +46,69 @@ function drawMainTitle() {
 	ctx.fillText('3', 392, 460);
 }
 
-function drawMenuGameMode_1() {
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = 'silver';
-    ctx.fillRect(150, 420, 98, 45);
-    ctx.font = "bold 15px sans-serif";
-    ctx.fillText('"ENDURE"', 160, 500);
-    ctx.font = "14px sans-serif";
-    ctx.fillText("Your score is the game's elapsed time", 180, 530);
-    ctx.globalAlpha = 0.4;
-    ctx.fillRect(251, 420, 98, 45);
-    ctx.fillRect(352, 420, 98, 45);
-}
-
-function drawMenuGameMode_2() {
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = 'silver';
-    ctx.fillRect(251, 420, 98, 45);
-    ctx.font = "bold 15px sans-serif";
-    ctx.fillText('"DODGE"', 265, 500);
-    ctx.font = "14px sans-serif";
-    ctx.fillText("Your score is the number of dodged obstacles", 160, 530);
-    ctx.globalAlpha = 0.4;
-    ctx.fillRect(150, 420, 98, 45);
-    ctx.fillRect(352, 420, 98, 45);
-    menuSelection = 2;
-}
-
-function drawMenuGameMode_3() {
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = 'silver';
-    ctx.fillRect(352, 420, 98, 45);
-    ctx.font = "bold 15px sans-serif";
-    ctx.fillText('"DESTROY"', 360, 500);
-    ctx.font = "14px sans-serif";
-    ctx.fillText("Your score is the number of destroyed obstacles", 150, 530);
-    ctx.globalAlpha = 0.4;
-    ctx.fillRect(150, 420, 98, 45);
-    ctx.fillRect(251, 420, 98, 45);
-    menuSelection = 3;
-}
-
-function drawMenuInactive() {
-    ctx.globalAlpha = 0.4;
-    ctx.fillStyle = 'silver';
-    ctx.fillRect(150, 420, 98, 45);
-    ctx.fillRect(251, 420, 98, 45);
-    ctx.fillRect(352, 420, 98, 45);
+function drawMenu(gameMode) {
+	if (gameMode == 0) {
+		ctx.globalAlpha = 0.4;
+		ctx.fillStyle = 'silver';
+		ctx.fillRect(150, 420, 98, 45);
+		ctx.fillRect(251, 420, 98, 45);
+		ctx.fillRect(352, 420, 98, 45);
+	} else if (gameMode == 1) {
+		ctx.globalAlpha = 1;
+		ctx.fillStyle = 'silver';
+		ctx.fillRect(150, 420, 98, 45);
+		ctx.font = "bold 15px sans-serif";
+		ctx.fillText('"ENDURE"', 160, 500);
+		ctx.font = "14px sans-serif";
+		ctx.fillText("Your score is the game's elapsed time", 180, 530);
+		ctx.globalAlpha = 0.4;
+		ctx.fillRect(251, 420, 98, 45);
+		ctx.fillRect(352, 420, 98, 45);
+	} else if (gameMode == 2) {
+		ctx.globalAlpha = 1;
+		ctx.fillStyle = 'silver';
+		ctx.fillRect(251, 420, 98, 45);
+		ctx.font = "bold 15px sans-serif";
+		ctx.fillText('"DODGE"', 265, 500);
+		ctx.font = "14px sans-serif";
+		ctx.fillText("Your score is the number of dodged obstacles", 160, 530);
+		ctx.globalAlpha = 0.4;
+		ctx.fillRect(150, 420, 98, 45);
+		ctx.fillRect(352, 420, 98, 45);
+		menuSelection = 2;
+	} else if (gameMode == 3) {
+		ctx.globalAlpha = 1;
+		ctx.fillStyle = 'silver';
+		ctx.fillRect(352, 420, 98, 45);
+		ctx.font = "bold 15px sans-serif";
+		ctx.fillText('"DESTROY"', 360, 500);
+		ctx.font = "14px sans-serif";
+		ctx.fillText("Your score is the number of destroyed obstacles", 150, 530);
+		ctx.globalAlpha = 0.4;
+		ctx.fillRect(150, 420, 98, 45);
+		ctx.fillRect(251, 420, 98, 45);
+		menuSelection = 3;
+	}
 }
 
 function drawMenuDigits() {
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = 'black';
-    ctx.font = "bold 50px sans-serif";
-    ctx.fillText('1', 190, 460);
-    ctx.fillText('2', 291, 460);
-    ctx.fillText('3', 392, 460);
+	ctx.globalAlpha = 1;
+	ctx.fillStyle = 'black';
+	ctx.font = "bold 50px sans-serif";
+	ctx.fillText('1', 190, 460);
+	ctx.fillText('2', 291, 460);
+	ctx.fillText('3', 392, 460);
 }
 
 function drawShip() {
 	ctx.fillStyle = 'white';
 	ctx.beginPath();
-    ctx.moveTo(shipFrontX - 3, shipFrontY);
+	ctx.moveTo(shipFrontX - 3, shipFrontY);
 	ctx.lineTo(shipFrontX + 3, shipFrontY);
-    ctx.lineTo(shipRightX, shipRightY);
-    ctx.lineTo(shipLeftX, shipLeftY);
+	ctx.lineTo(shipRightX, shipRightY);
+	ctx.lineTo(shipLeftX, shipLeftY);
 	ctx.closePath;
-    ctx.fill();
+	ctx.fill();
 }
 
 function drawObstacles() {
