@@ -18,26 +18,32 @@ let windowCanvasOffsetLeft = document.getElementById("game").offsetLeft;
 let windowCanvasOffsetTop = document.getElementById("game").offsetTop;
 let innerCanvasOffsetLeft = [150,251,352];
 let menuLocationX = [];
-for (let i = 0; i < 3; ++i) {
-	menuLocationX[i] = windowCanvasOffsetLeft + innerCanvasOffsetLeft[i];
-}
+incrementArray(menuLocationX, innerCanvasOffsetLeft, windowCanvasOffsetLeft);
 let innerCanvasOffsetTop = 420;
 let menuLocationY = windowCanvasOffsetTop + innerCanvasOffsetTop;
 let menuBoxLength = 97, menuBoxWidth = 45;
 setInterval(moveBackgroundDown, 150);
 drawHomeScreen();
 
+function incrementArray(outputArray, inputArray, incrementValue) {
+	for (let i = 0; i < inputArray.length; ++i) {
+		outputArray[i] = incrementValue + inputArray[i];
+	}
+}
+
 function highlightMainMenu(mouse_event) {
 	ctx.clearRect(150, 420, 300, 300); // clears only the game mode menu area
+	let gameMode;
 	if (mouse_event.clientX >= menuLocationX[0] && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX[0] + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
-		drawMenuGameMode_1();
+		gameMode = 1;
 	} else if (mouse_event.clientX >= menuLocationX[1] && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX[1] + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
-		drawMenuGameMode_2();
+		gameMode = 2;
 	} else if (mouse_event.clientX >= menuLocationX[2] && mouse_event.clientY >= menuLocationY && mouse_event.clientX <= menuLocationX[2] + menuBoxLength && mouse_event.clientY <= menuLocationY + menuBoxWidth) {
-		drawMenuGameMode_3();
+		gameMode = 3;
 	} else {
-		drawMenuInactive();
+		gameMode = 0;
 	}
+	drawMenu(gameMode);
 	drawMenuDigits();
 }
 
