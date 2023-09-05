@@ -230,28 +230,25 @@ function incrementScore() {
 
 function moveShip(event) {
 	if (event.key === 'ArrowLeft') {
-		moveLeft();
+		lateralMove(0, 5);
 	} else if (event.key === 'ArrowRight') {
-		moveRight();
+		lateralMove(1, 5);
 	}
 }
 
 let rightCanvasLimit = 585, leftCanvasLimit = 15;
-function moveRight() {
-	if (shipFrontX <= rightCanvasLimit) {
-		shipFrontX += 5;
-		shipLeftX = shipFrontX - 10;
-		shipRightX = shipFrontX + 10;
+function lateralMove(direction, moveIncrement) {
+	if (direction == 1) { //move right
+		if (shipFrontX <= rightCanvasLimit) {
+			shipFrontX += moveIncrement;
+		}
+	} else { // move left
+		if (shipFrontX >= leftCanvasLimit) {
+			shipFrontX -= moveIncrement;
+		}
 	}
-	redrawGame();
-}
-
-function moveLeft() {
-	if (shipFrontX >= leftCanvasLimit) {
-		shipFrontX -= 5;
-		shipLeftX = shipFrontX - 10;
-		shipRightX = shipFrontX + 10;
-	}
+	shipLeftX = shipFrontX - shipWidthInPixels / 2;
+	shipRightX = shipFrontX + shipWidthInPixels / 2;
 	redrawGame();
 }
 
